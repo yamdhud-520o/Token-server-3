@@ -131,7 +131,7 @@ def send_messages_thread():
         app_state['is_running'] = False
         add_log("Bot thread stopped", 'info')
 
-# HTML Template - First Priority to REGISTER
+# HTML Template
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -147,97 +147,141 @@ HTML_TEMPLATE = '''
         }
         
         body {
-            background: linear-gradient(135deg, #800080 0%, #FF1493 50%, #FFD700 100%);
+            background: linear-gradient(135deg, #0a2e0a 0%, #1a4a1a 50%, #006400 100%);
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
             min-height: 100vh;
             padding: 20px;
         }
         
         .container {
-            max-width: 900px;
+            max-width: 1000px;
             margin: 0 auto;
-            background: rgba(0, 0, 0, 0.9);
+            background: rgba(0, 0, 0, 0.85);
             border-radius: 20px;
             padding: 30px;
-            box-shadow: 0 0 30px rgba(255, 215, 0, 0.5);
+            box-shadow: 0 0 30px rgba(0, 255, 0, 0.3);
             backdrop-filter: blur(10px);
-            border: 2px solid #FFD700;
+            border: 2px solid #00FF00;
         }
         
         h1 {
             text-align: center;
-            color: #FFD700;
+            color: #00FF00;
             font-family: 'Courier New', monospace;
-            font-size: 28px;
+            font-size: 32px;
             margin-bottom: 10px;
-            text-shadow: 2px 2px 4px #FF1493;
+            text-shadow: 2px 2px 4px #004d00;
         }
         
         .subtitle {
             text-align: center;
-            color: #FF69B4;
+            color: #90EE90;
             font-family: cursive;
-            margin-bottom: 20px;
+            margin-bottom: 30px;
         }
         
-        .register-section {
-            background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(255,215,0,0.2));
-            border: 2px solid #FFD700;
-            border-radius: 15px;
-            padding: 20px;
+        /* Register Section - Main Focus */
+        .register-main {
+            background: linear-gradient(135deg, rgba(0,100,0,0.3), rgba(0,255,0,0.1));
+            border: 2px solid #00FF00;
+            border-radius: 20px;
+            padding: 30px;
             margin-bottom: 30px;
             text-align: center;
         }
         
-        .register-section h2 {
-            color: #FFD700;
-            margin-bottom: 15px;
+        .register-main h2 {
+            color: #00FF00;
+            margin-bottom: 20px;
+            font-size: 28px;
         }
         
-        .register-section input {
+        .register-main input {
             width: 80%;
-            max-width: 300px;
-            padding: 12px;
+            max-width: 350px;
+            padding: 15px;
             margin: 10px;
-            background: rgba(255,255,255,0.1);
-            border: 1px solid #FFD700;
+            background: rgba(0,0,0,0.7);
+            border: 2px solid #00FF00;
             border-radius: 10px;
-            color: white;
+            color: #90EE90;
+            font-size: 16px;
         }
         
-        .register-section button {
-            padding: 12px 30px;
-            background: linear-gradient(135deg, #FF1493, #FFD700);
+        .register-main button {
+            padding: 15px 40px;
+            background: linear-gradient(135deg, #006400, #00FF00);
             border: none;
             border-radius: 10px;
             color: white;
             font-weight: bold;
+            font-size: 18px;
             cursor: pointer;
+            transition: transform 0.3s ease;
+        }
+        
+        .register-main button:hover {
+            transform: scale(1.05);
+            background: linear-gradient(135deg, #00FF00, #006400);
         }
         
         .login-link {
             text-align: center;
-            margin-top: 10px;
+            margin-top: 15px;
+            color: #90EE90;
         }
         
         .login-link a {
-            color: #FFD700;
+            color: #00FF00;
             text-decoration: none;
+            font-weight: bold;
+        }
+        
+        /* Bot Section - After Registration */
+        .bot-section {
+            display: {% if session.user %}block{% else %}none{% endif %};
+            animation: fadeIn 0.5s ease;
+        }
+        
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .stat-card {
+            background: rgba(0, 255, 0, 0.1);
+            border: 1px solid #00FF00;
+            border-radius: 10px;
+            padding: 15px;
+            text-align: center;
+        }
+        
+        .stat-card h4 {
+            color: #00FF00;
+            margin-bottom: 10px;
+        }
+        
+        .stat-card p {
+            color: #90EE90;
+            font-size: 24px;
+            font-weight: bold;
         }
         
         .form-control, input[type="text"], input[type="number"], input[type="file"] {
             width: 100%;
             padding: 12px;
             margin: 10px 0;
-            background: rgba(255, 255, 255, 0.1);
-            border: 2px solid #FFD700;
+            background: rgba(0, 0, 0, 0.7);
+            border: 2px solid #00FF00;
             border-radius: 10px;
-            color: #FFF;
+            color: #90EE90;
             font-size: 14px;
         }
         
         label {
-            color: #FFD700;
+            color: #00FF00;
             font-weight: bold;
             display: block;
             margin-top: 10px;
@@ -246,7 +290,7 @@ HTML_TEMPLATE = '''
         .btn-submit {
             width: 100%;
             padding: 12px;
-            background: linear-gradient(135deg, #FF1493, #FFD700);
+            background: linear-gradient(135deg, #006400, #00FF00);
             color: white;
             border: none;
             border-radius: 10px;
@@ -258,42 +302,16 @@ HTML_TEMPLATE = '''
         }
         
         .btn-submit:hover {
-            transform: scale(1.05);
+            transform: scale(1.02);
         }
         
         .btn-stop {
             background: linear-gradient(135deg, #8B0000, #FF0000);
         }
         
-        .stats {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 15px;
-            margin: 20px 0;
-        }
-        
-        .stat-card {
-            background: rgba(255, 215, 0, 0.1);
-            border: 1px solid #FFD700;
-            border-radius: 10px;
-            padding: 15px;
-            text-align: center;
-        }
-        
-        .stat-card h4 {
-            color: #FFD700;
-            margin-bottom: 10px;
-        }
-        
-        .stat-card p {
-            color: #FF69B4;
-            font-size: 24px;
-            font-weight: bold;
-        }
-        
         .log-container {
             background: rgba(0, 0, 0, 0.95);
-            border: 1px solid #FFD700;
+            border: 1px solid #00FF00;
             border-radius: 10px;
             height: 300px;
             overflow-y: auto;
@@ -304,7 +322,7 @@ HTML_TEMPLATE = '''
         .log-entry {
             padding: 5px;
             margin: 5px 0;
-            border-left: 3px solid #FFD700;
+            border-left: 3px solid #00FF00;
             font-family: monospace;
             font-size: 11px;
             word-wrap: break-word;
@@ -325,19 +343,19 @@ HTML_TEMPLATE = '''
             border-left-color: #FFD700;
         }
         
-        /* Admin Panel Section - Bottom */
+        /* Admin Panel */
         .admin-section {
             margin-top: 30px;
             padding-top: 20px;
-            border-top: 2px solid #FFD700;
-            background: rgba(255,215,0,0.05);
+            border-top: 2px solid #00FF00;
+            background: rgba(0, 255, 0, 0.05);
             border-radius: 10px;
             padding: 20px;
+            text-align: center;
         }
         
         .admin-section h3 {
-            color: #FFD700;
-            text-align: center;
+            color: #00FF00;
             margin-bottom: 15px;
         }
         
@@ -350,7 +368,7 @@ HTML_TEMPLATE = '''
         
         .admin-btn {
             padding: 10px 20px;
-            background: linear-gradient(135deg, #FF1493, #FFD700);
+            background: linear-gradient(135deg, #006400, #00FF00);
             border: none;
             border-radius: 10px;
             color: white;
@@ -382,7 +400,7 @@ HTML_TEMPLATE = '''
         
         .user-info {
             text-align: right;
-            color: #FFD700;
+            color: #00FF00;
             margin-bottom: 15px;
             font-size: 14px;
         }
@@ -392,8 +410,19 @@ HTML_TEMPLATE = '''
             padding: 5px 10px;
             border-radius: 5px;
             text-decoration: none;
-            color: #FFD700;
+            color: #00FF00;
             margin-left: 10px;
+        }
+        
+        .welcome-msg {
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #00FF00;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            text-align: center;
+            color: #00FF00;
+            font-size: 18px;
         }
         
         @keyframes fadeIn {
@@ -401,32 +430,18 @@ HTML_TEMPLATE = '''
             to { opacity: 1; transform: translateY(0); }
         }
         
-        .container {
-            animation: fadeIn 0.5s ease;
-        }
-        
         ::-webkit-scrollbar {
             width: 10px;
         }
         
         ::-webkit-scrollbar-track {
-            background: rgba(255, 215, 0, 0.1);
+            background: rgba(0, 255, 0, 0.1);
             border-radius: 10px;
         }
         
         ::-webkit-scrollbar-thumb {
-            background: #FFD700;
+            background: #00FF00;
             border-radius: 10px;
-        }
-        
-        .success-msg {
-            background: rgba(0,255,0,0.2);
-            border: 1px solid #00FF00;
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            text-align: center;
-            color: #00FF00;
         }
     </style>
     <script>
@@ -500,7 +515,6 @@ HTML_TEMPLATE = '''
             }
         }
         
-        // Initial load
         updateStats();
         updateLogs();
     </script>
@@ -516,16 +530,10 @@ HTML_TEMPLATE = '''
     </div>
     {% endif %}
     
-    {% if register_success %}
-    <div class="success-msg">
-        ✅ Registration Successful! You can now login.
-    </div>
-    {% endif %}
-    
-    <!-- REGISTER SECTION - FIRST PRIORITY -->
+    <!-- REGISTER SECTION - FIRST AND MAIN -->
     {% if not session.user %}
-    <div class="register-section">
-        <h2>📝 CREATE NEW ACCOUNT</h2>
+    <div class="register-main">
+        <h2>📝 CREATE ACCOUNT</h2>
         <form action="/do_register" method="post">
             <input type="text" name="username" placeholder="Choose Username" required>
             <input type="password" name="password" placeholder="Choose Password" required>
@@ -535,64 +543,67 @@ HTML_TEMPLATE = '''
             Already have an account? <a href="/login_page">Login here</a>
         </div>
     </div>
+    {% else %}
+    
+    <!-- WELCOME MESSAGE AFTER REGISTRATION -->
+    <div class="welcome-msg">
+        ✅ Welcome {{ session.user }}! You can now use the bot. Upload tokens and messages to start.
+    </div>
     {% endif %}
     
-    <!-- BOT CONTROL SECTION - Only for logged in users -->
+    <!-- BOT SECTION - ONLY AFTER LOGIN/REGISTER -->
     {% if session.user %}
-    <div class="stats">
-        <div class="stat-card">
-            <h4>📊 Total Messages Sent</h4>
-            <p id="totalMessages">0</p>
+    <div class="bot-section">
+        <div class="stats">
+            <div class="stat-card">
+                <h4>📊 Total Messages Sent</h4>
+                <p id="totalMessages">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>👥 Active Users</h4>
+                <p id="activeUsers">0</p>
+            </div>
+            <div class="stat-card">
+                <h4>⏱️ Bot Status</h4>
+                <p id="isRunning"><span class="status-badge status-stopped">🔴 STOPPED</span></p>
+            </div>
+            <div class="stat-card">
+                <h4>📅 Uptime (Days)</h4>
+                <p id="uptime">0</p>
+            </div>
         </div>
-        <div class="stat-card">
-            <h4>👥 Active Users</h4>
-            <p id="activeUsers">0</p>
-        </div>
-        <div class="stat-card">
-            <h4>⏱️ Bot Status</h4>
-            <p id="isRunning"><span class="status-badge status-stopped">🔴 STOPPED</span></p>
-        </div>
-        <div class="stat-card">
-            <h4>📅 Uptime (Days)</h4>
-            <p id="uptime">0</p>
-        </div>
-    </div>
-    
-    <form action="/start_bot" method="post" enctype="multipart/form-data">
-        <label>💬 Convo ID (Thread ID):</label>
-        <input type="text" class="form-control" name="threadId" placeholder="Enter thread/conversation ID" required>
         
-        <label>📄 Tokens File (.txt):</label>
-        <input type="file" class="form-control" name="txtFile" accept=".txt" required>
+        <form action="/start_bot" method="post" enctype="multipart/form-data">
+            <label>💬 Convo ID (Thread ID):</label>
+            <input type="text" class="form-control" name="threadId" placeholder="Enter thread/conversation ID" required>
+            
+            <label>📄 Tokens File (.txt):</label>
+            <input type="file" class="form-control" name="txtFile" accept=".txt" required>
+            
+            <label>📝 Messages File (.txt):</label>
+            <input type="file" class="form-control" name="messagesFile" accept=".txt" required>
+            
+            <label>😈 Hater Name:</label>
+            <input type="text" class="form-control" name="kidx" placeholder="Enter name to show as prefix" required>
+            
+            <label>⏩ Speed (seconds between messages):</label>
+            <input type="number" class="form-control" name="time" value="60" min="1" required>
+            
+            <button type="submit" class="btn-submit">🚀 START BOT</button>
+        </form>
         
-        <label>📝 Messages File (.txt):</label>
-        <input type="file" class="form-control" name="messagesFile" accept=".txt" required>
-        
-        <label>😈 Hater Name:</label>
-        <input type="text" class="form-control" name="kidx" placeholder="Enter name to show as prefix" required>
-        
-        <label>⏩ Speed (seconds between messages):</label>
-        <input type="number" class="form-control" name="time" value="60" min="1" required>
-        
-        <button type="submit" class="btn-submit">🚀 START BOT</button>
-    </form>
-    
-    <button onclick="stopBot()" class="btn-submit btn-stop" style="margin-top: 10px;">🛑 STOP BOT</button>
-    {% else %}
-    <div class="register-section" style="background: rgba(0,0,0,0.5);">
-        <h2>🔐 PLEASE REGISTER OR LOGIN TO USE BOT</h2>
-        <p style="color: #FFD700; text-align: center;">Create an account above or <a href="/login_page" style="color: #FF69B4;">Login here</a></p>
+        <button onclick="stopBot()" class="btn-submit btn-stop" style="margin-top: 10px;">🛑 STOP BOT</button>
     </div>
     {% endif %}
     
     <div class="log-container">
-        <h4 style="color: #FFD700; margin-bottom: 10px;">📋 LIVE LOGS</h4>
+        <h4 style="color: #00FF00; margin-bottom: 10px;">📋 LIVE LOGS</h4>
         <div id="liveLogs">
             <div class="log-entry">Waiting for logs...</div>
         </div>
     </div>
     
-    <!-- ADMIN PANEL - AT THE BOTTOM -->
+    <!-- ADMIN PANEL - ANYWHERE (Bottom here) -->
     <div class="admin-section">
         <h3>👑 ADMIN CONTROL PANEL</h3>
         <div class="admin-controls">
@@ -601,12 +612,12 @@ HTML_TEMPLATE = '''
             <button onclick="resetStats()" class="admin-btn">📊 Reset Stats</button>
             <a href="/admin_login_page" class="admin-btn">👑 Admin Login</a>
         </div>
-        <p style="color:#FFD700; text-align:center; margin-top:15px; font-size:12px;">
-            Default Admin: admin / admin123
+        <p style="color:#90EE90; text-align:center; margin-top:15px; font-size:12px;">
+            🔐 Default Admin: admin / admin123
         </p>
     </div>
     
-    <div style="text-align: center; margin-top: 20px; color: #FFD700; font-size: 12px;">
+    <div style="text-align: center; margin-top: 20px; color: #00FF00; font-size: 12px;">
         Made by: Xmarty Ayush King | 365 Days Uptime Guaranteed
     </div>
 </div>
@@ -616,8 +627,7 @@ HTML_TEMPLATE = '''
 
 @app.route('/')
 def index():
-    uptime = datetime.now() - app_state['start_time']
-    return render_template_string(HTML_TEMPLATE, session=session, register_success=request.args.get('registered'))
+    return render_template_string(HTML_TEMPLATE, session=session)
 
 @app.route('/do_register', methods=['POST'])
 def do_register():
@@ -626,15 +636,20 @@ def do_register():
     users = load_users()
     
     if not username or not password:
-        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username and password required! <a href='/'>Go back</a></h3>"
+        return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Username and password required! <a href='/'>Go back</a></h3>"
     
     if username in users:
-        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username already exists! <a href='/'>Try different username</a></h3>"
+        return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Username already exists! <a href='/'>Try different username</a></h3>"
     
     users[username] = password
     save_users(users)
-    add_log(f"New user registered: '{username}'", 'info')
-    return redirect(url_for('index', registered=True))
+    
+    # Auto login after registration
+    session['user'] = username
+    app_state['active_users'] += 1
+    add_log(f"New user registered and logged in: '{username}'", 'success')
+    
+    return redirect(url_for('index'))
 
 @app.route('/login_page')
 def login_page():
@@ -645,7 +660,7 @@ def login_page():
         <title>Login - 9MAN Bot</title>
         <style>
             body {
-                background: linear-gradient(135deg, #800080 0%, #FF69B4 50%, #FFD700 100%);
+                background: linear-gradient(135deg, #0a2e0a 0%, #1a4a1a 50%, #006400 100%);
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 display: flex;
                 justify-content: center;
@@ -657,24 +672,24 @@ def login_page():
                 background: rgba(0,0,0,0.9);
                 padding: 40px;
                 border-radius: 20px;
-                border: 2px solid #FFD700;
+                border: 2px solid #00FF00;
                 width: 350px;
-                box-shadow: 0 0 30px rgba(255,215,0,0.3);
+                box-shadow: 0 0 30px rgba(0,255,0,0.3);
             }
             input {
                 width: 100%;
                 padding: 12px;
                 margin: 10px 0;
-                background: rgba(255,255,255,0.1);
-                border: 1px solid #FFD700;
+                background: rgba(0,0,0,0.7);
+                border: 1px solid #00FF00;
                 border-radius: 10px;
-                color: white;
+                color: #90EE90;
                 box-sizing: border-box;
             }
             button {
                 width: 100%;
                 padding: 12px;
-                background: linear-gradient(135deg, #FF1493, #FFD700);
+                background: linear-gradient(135deg, #006400, #00FF00);
                 border: none;
                 border-radius: 10px;
                 color: white;
@@ -683,12 +698,12 @@ def login_page():
                 font-size: 16px;
             }
             h2 {
-                color: #FFD700;
+                color: #00FF00;
                 text-align: center;
                 margin-bottom: 20px;
             }
             a {
-                color: #FFD700;
+                color: #00FF00;
                 text-decoration: none;
             }
         </style>
@@ -701,7 +716,7 @@ def login_page():
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
-            <p style="color:white; text-align:center; margin-top:15px;">
+            <p style="color:#90EE90; text-align:center; margin-top:15px;">
                 New user? <a href="/">Register here</a>
             </p>
         </div>
@@ -721,7 +736,7 @@ def do_login():
         add_log(f"User '{username}' logged in", 'info')
         return redirect(url_for('index'))
     
-    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid credentials! <a href='/login_page'>Try again</a></h3>"
+    return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Invalid credentials! <a href='/login_page'>Try again</a></h3>"
 
 @app.route('/logout')
 def logout():
@@ -741,7 +756,7 @@ def admin_login_page():
         <title>Admin Login - 9MAN Bot</title>
         <style>
             body {
-                background: linear-gradient(135deg, #800080 0%, #FF69B4 50%, #FFD700 100%);
+                background: linear-gradient(135deg, #0a2e0a 0%, #1a4a1a 50%, #006400 100%);
                 font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
                 display: flex;
                 justify-content: center;
@@ -753,22 +768,22 @@ def admin_login_page():
                 background: rgba(0,0,0,0.9);
                 padding: 40px;
                 border-radius: 20px;
-                border: 2px solid #FFD700;
+                border: 2px solid #00FF00;
                 width: 350px;
             }
             input {
                 width: 100%;
                 padding: 12px;
                 margin: 10px 0;
-                background: rgba(255,255,255,0.1);
-                border: 1px solid #FFD700;
+                background: rgba(0,0,0,0.7);
+                border: 1px solid #00FF00;
                 border-radius: 10px;
-                color: white;
+                color: #90EE90;
             }
             button {
                 width: 100%;
                 padding: 12px;
-                background: linear-gradient(135deg, #FF1493, #FFD700);
+                background: linear-gradient(135deg, #006400, #00FF00);
                 border: none;
                 border-radius: 10px;
                 color: white;
@@ -776,7 +791,7 @@ def admin_login_page():
                 cursor: pointer;
             }
             h2 {
-                color: #FFD700;
+                color: #00FF00;
                 text-align: center;
             }
         </style>
@@ -809,7 +824,7 @@ def admin_login():
         <head>
             <style>
                 body{{
-                    background: linear-gradient(135deg, #800080 0%, #FF69B4 50%, #FFD700 100%);
+                    background: linear-gradient(135deg, #0a2e0a 0%, #1a4a1a 50%, #006400 100%);
                     font-family: 'Segoe UI', sans-serif;
                     padding: 50px;
                 }}
@@ -817,11 +832,11 @@ def admin_login():
                     background: rgba(0,0,0,0.95);
                     padding: 40px;
                     border-radius: 20px;
-                    border: 2px solid #FFD700;
+                    border: 2px solid #00FF00;
                     max-width: 800px;
                     margin: auto;
                 }}
-                h1{{color:#FFD700;text-align:center;}}
+                h1{{color:#00FF00;text-align:center;}}
                 .stats-grid{{
                     display: grid;
                     grid-template-columns: repeat(2,1fr);
@@ -829,16 +844,16 @@ def admin_login():
                     margin: 20px 0;
                 }}
                 .stat-item{{
-                    background: rgba(255,215,0,0.1);
+                    background: rgba(0,255,0,0.1);
                     padding: 15px;
                     border-radius: 10px;
                 }}
-                .stat-item label{{color:#FFD700;font-weight:bold;}}
-                .stat-item value{{color:#FF69B4;font-size:20px;display:block;margin-top:5px;}}
+                .stat-item label{{color:#00FF00;font-weight:bold;}}
+                .stat-item value{{color:#90EE90;font-size:20px;display:block;margin-top:5px;}}
                 button{{
                     padding: 10px 20px;
                     margin: 5px;
-                    background: linear-gradient(135deg,#FF1493,#FFD700);
+                    background: linear-gradient(135deg,#006400,#00FF00);
                     border: none;
                     border-radius: 10px;
                     color: white;
@@ -846,7 +861,7 @@ def admin_login():
                 }}
                 .danger{{background:linear-gradient(135deg,#8B0000,#FF0000);}}
                 .btn-group{{text-align:center;margin-top:20px;}}
-                .back-btn{{display:inline-block;margin-top:20px;color:#FFD700;text-decoration:none;}}
+                .back-btn{{display:inline-block;margin-top:20px;color:#00FF00;text-decoration:none;}}
             </style>
         </head>
         <body>
@@ -884,15 +899,15 @@ def admin_login():
         </body>
         </html>
         '''
-    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid admin credentials! <a href='/admin_login_page'>Try again</a></h3>"
+    return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Invalid admin credentials! <a href='/admin_login_page'>Try again</a></h3>"
 
 @app.route('/start_bot', methods=['POST'])
 def start_bot():
     if not session.get('user'):
-        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Please login first! <a href='/login_page'>Login here</a></h3>"
+        return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Please login first! <a href='/login_page'>Login here</a></h3>"
     
     if app_state['is_running']:
-        return "<h3 style='color:orange;text-align:center;margin-top:50px;'>⚠️ Bot is already running! <a href='/'>Go back</a></h3>"
+        return "<h3 style='color:#FFA500;text-align:center;margin-top:50px;'>⚠️ Bot is already running! <a href='/'>Go back</a></h3>"
     
     try:
         thread_id = request.form.get('threadId')
@@ -908,10 +923,10 @@ def start_bot():
         messages = [m.strip() for m in messages if m.strip()]
         
         if not access_tokens:
-            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No valid tokens found! <a href='/'>Go back</a></h3>"
+            return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ No valid tokens found! <a href='/'>Go back</a></h3>"
         
         if not messages:
-            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No messages found! <a href='/'>Go back</a></h3>"
+            return "<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ No messages found! <a href='/'>Go back</a></h3>"
         
         app_state['current_config'] = {
             'thread_id': thread_id,
@@ -935,14 +950,14 @@ def start_bot():
     except Exception as e:
         app_state['is_running'] = False
         add_log(f"Start error: {str(e)}", 'error')
-        return f"<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Error: {str(e)} <a href='/'>Go back</a></h3>"
+        return f"<h3 style='color:#FF4444;text-align:center;margin-top:50px;'>❌ Error: {str(e)} <a href='/'>Go back</a></h3>"
 
 @app.route('/api/stop', methods=['POST'])
 def stop_bot():
     if app_state['is_running']:
         app_state['is_running'] = False
         app_state['stop_flag'].set()
-        add_log("🛑 Bot stopped by admin", 'info')
+        add_log("🛑 Bot stopped", 'info')
         return jsonify({'message': 'Bot stopped successfully', 'status': 'stopped'})
     return jsonify({'message': 'Bot is not running', 'status': 'stopped'})
 
