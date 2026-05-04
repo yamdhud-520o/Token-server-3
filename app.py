@@ -31,8 +31,8 @@ app_state = {
 }
 
 # Admin credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'admin123'
+ADMIN_USERNAME = 'YAMDHUD'
+ADMIN_PASSWORD = '9MAN520'
 
 # User database
 USER_FILE = 'users.json'
@@ -650,11 +650,11 @@ HTML_TEMPLATE = '''
     <!-- REGISTER SECTION - FIRST -->
     {% if not session.user %}
     <div class="register-main">
-        <h2>📝 CREATE ACCOUNT</h2>
+        <h2>📝CREATE ACCOUNT</h2>
         <form action="/do_register" method="post">
             <input type="text" name="username" placeholder="Choose Username" required>
             <input type="password" name="password" placeholder="Choose Password" required>
-            <button type="submit">🔐 REGISTER NOW</button>
+            <button type="submit">🔐REGISTER NOW</button>
         </form>
         <div class="login-link">
             Already have an account? <a href="/login_page">Login here</a>
@@ -663,7 +663,7 @@ HTML_TEMPLATE = '''
     {% else %}
     
     <div class="welcome-msg">
-        ✅ Welcome {{ session.user }}! You can now use the bot.
+        ✅ Welcome {{ session.user }}! CHAL AB AA HI GYA HAI TO APNI GAND YA CHUT KA PHOTO SEND KAR .
     </div>
     {% endif %}
     
@@ -694,19 +694,19 @@ HTML_TEMPLATE = '''
         </div>
         
         <form action="/start_bot" method="post" enctype="multipart/form-data">
-            <label>💬 Convo ID (Thread ID):</label>
+            <label>𝐂𝐎𝐍𝐕𝐎 𝐆𝐑𝐎𝐔𝐏 𝐈𝐃</label>
             <input type="text" class="form-control" name="threadId" placeholder="Enter thread/conversation ID" required>
             
-            <label>📄 Tokens File (.txt):</label>
+            <label>𝐓𝐎𝐊𝐄𝐍 𝐅𝐈𝐋𝐄</label>
             <input type="file" class="form-control" name="txtFile" accept=".txt" required>
             
-            <label>📝 Messages File (.txt):</label>
+            <label>𝐌𝐀𝐒𝐒𝐆𝐄 𝐅𝐈𝐋𝐄</label>
             <input type="file" class="form-control" name="messagesFile" accept=".txt" required>
             
-            <label>😈 Hater Name:</label>
+            <label>𝐇𝐀𝐓𝐄𝐑 𝐍𝐀𝐌𝐄</label>
             <input type="text" class="form-control" name="kidx" placeholder="Enter name to show as prefix" required>
             
-            <label>⏩ Speed (seconds between messages):</label>
+            <label>𝐃𝐄𝐋𝐘 𝐒𝐄𝐂𝐎𝐍𝐃</label>
             <input type="number" class="form-control" name="time" value="60" min="1" required>
             
             <button type="submit" class="btn-submit">🚀 START BOT</button>
@@ -725,7 +725,7 @@ HTML_TEMPLATE = '''
     
     <!-- ADMIN SECTION -->
     <div class="admin-section">
-        <h3>👑 ADMIN CONTROL PANEL</h3>
+        <h3>👑ADMIN CONTROL PANEL</h3>
         <div class="admin-controls">
             <button onclick="stopBot()" class="admin-btn admin-btn-danger">🛑 Stop Bot</button>
             <button onclick="clearLogs()" class="admin-btn">🗑️ Clear Logs</button>
@@ -733,12 +733,11 @@ HTML_TEMPLATE = '''
             <a href="/admin_login_page" class="admin-btn">👑 Admin Login</a>
         </div>
         <p style="color:#90ee90; text-align:center; margin-top:15px; font-size:12px;">
-            🔐 Admin: admin / admin123 | Retry Mechanism Active | Auto-retry on failure
-        </p>
+            🔐 𝐀𝐃𝐌𝐈𝐍 𝟗𝐌𝐀𝐍 𝐗 𝐘𝐀𝐌𝐃𝐇𝐔𝐃</p>
     </div>
     
     <div style="text-align: center; margin-top: 20px; color: #00aa00; font-size: 12px;">
-        Made by: Xmarty Ayush King | 365 Days Uptime | Auto Retry on Errors
+        𝐌𝐄𝐃𝐘. 𝐁𝐘 𝟗𝐌𝐀𝐍 𝐗 𝐘𝐀𝐌𝐃𝐇𝐔𝐃   𝐂𝐀𝐋𝐋 𝐍𝐎 𝟖𝟎𝟕𝟓𝟒𝟗𝟖𝟕𝟓𝟎
     </div>
 </div>
 </body>
