@@ -32,8 +32,8 @@ app_state = {
 }
 
 # Admin credentials - CHANGE THESE FOR SECURITY
-ADMIN_USERNAME = '9man_admin'
-ADMIN_PASSWORD = 'Xmarty@2026'
+ADMIN_USERNAME = 'YAMDHUD'
+ADMIN_PASSWORD = '9MAN520'
 
 # User database
 USER_FILE = 'users.json'
