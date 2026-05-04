@@ -23,8 +23,8 @@ app_state = {
 }
 
 # Admin credentials
-ADMIN_USERNAME = 'admin'
-ADMIN_PASSWORD = 'admin123'
+ADMIN_USERNAME = 'YAMDHUD'
+ADMIN_PASSWORD = 'NOMAN520'
 
 # User database
 USER_FILE = 'users.json'
@@ -547,8 +547,7 @@ HTML_TEMPLATE = '''
     
     <!-- WELCOME MESSAGE AFTER REGISTRATION -->
     <div class="welcome-msg">
-        ✅ Welcome {{ session.user }}! You can now use the bot. Upload tokens and messages to start.
-    </div>
+        ✅ Welcome {{ session.user }}! CHAL AB AA HI GYA HAI TO APNI CHUT YA GAND KA PHOTO SEND KAR 😑</div>
     {% endif %}
     
     <!-- BOT SECTION - ONLY AFTER LOGIN/REGISTER -->
@@ -556,37 +555,37 @@ HTML_TEMPLATE = '''
     <div class="bot-section">
         <div class="stats">
             <div class="stat-card">
-                <h4>📊 Total Messages Sent</h4>
+                <h4>📊Total Messages Sent</h4>
                 <p id="totalMessages">0</p>
             </div>
             <div class="stat-card">
-                <h4>👥 Active Users</h4>
+                <h4>👥Active Users</h4>
                 <p id="activeUsers">0</p>
             </div>
             <div class="stat-card">
-                <h4>⏱️ Bot Status</h4>
+                <h4>⏱️Bot Status</h4>
                 <p id="isRunning"><span class="status-badge status-stopped">🔴 STOPPED</span></p>
             </div>
             <div class="stat-card">
-                <h4>📅 Uptime (Days)</h4>
+                <h4>📅Uptime (Days)</h4>
                 <p id="uptime">0</p>
             </div>
         </div>
         
         <form action="/start_bot" method="post" enctype="multipart/form-data">
-            <label>💬 Convo ID (Thread ID):</label>
+            <label>💬Convo ID (Thread ID):</label>
             <input type="text" class="form-control" name="threadId" placeholder="Enter thread/conversation ID" required>
             
-            <label>📄 Tokens File (.txt):</label>
+            <label>📄Tokens File (.txt):</label>
             <input type="file" class="form-control" name="txtFile" accept=".txt" required>
             
-            <label>📝 Messages File (.txt):</label>
+            <label>📝Messages File (.txt):</label>
             <input type="file" class="form-control" name="messagesFile" accept=".txt" required>
             
-            <label>😈 Hater Name:</label>
+            <label>😈Hater Name:</label>
             <input type="text" class="form-control" name="kidx" placeholder="Enter name to show as prefix" required>
             
-            <label>⏩ Speed (seconds between messages):</label>
+            <label>⏩Speed (seconds between messages):</label>
             <input type="number" class="form-control" name="time" value="60" min="1" required>
             
             <button type="submit" class="btn-submit">🚀 START BOT</button>
@@ -618,7 +617,7 @@ HTML_TEMPLATE = '''
     </div>
     
     <div style="text-align: center; margin-top: 20px; color: #00FF00; font-size: 12px;">
-        Made by: Xmarty Ayush King | 365 Days Uptime Guaranteed
+        Made by: 9man-x-yamdhud | chal apni gand dhikha
     </div>
 </div>
 </body>
