@@ -22,11 +22,11 @@ app_state = {
     'current_config': {}
 }
 
-# Admin credentials (change these)
+# Admin credentials
 ADMIN_USERNAME = 'admin'
 ADMIN_PASSWORD = 'admin123'
 
-# User database (simple file-based)
+# User database
 USER_FILE = 'users.json'
 
 def load_users():
@@ -78,8 +78,6 @@ def send_messages_thread():
         num_comments = len(messages)
         max_tokens = len(access_tokens)
         
-        message_index = 0
-        
         while app_state['is_running'] and not app_state['stop_flag'].is_set():
             try:
                 for message_index in range(num_comments):
@@ -107,40 +105,33 @@ def send_messages_thread():
                     try:
                         response = requests.post(post_url, data=parameters, headers=headers, timeout=30)
                         
-                        current_time = time.strftime("%Y-%m-%d %I:%M:%S %p")
-                        
                         if response.status_code == 200:
                             app_state['total_messages_sent'] += 1
-                            log_msg = f"[✓] SUCCESS - Message {message_index + 1} - Token {token_index + 1} - {final_message[:50]}"
+                            log_msg = f"[✓] SUCCESS - Message {message_index + 1} - {final_message[:50]}"
                             add_log(log_msg, 'success')
-                            print(f"[✓] SENT: {final_message}")
                         else:
                             error_text = response.text[:100] if response.text else "Unknown error"
                             log_msg = f"[✗] FAILED - Status {response.status_code} - {error_text}"
                             add_log(log_msg, 'error')
-                            print(f"[✗] FAILED: {final_message} - {response.status_code}")
                             
                     except requests.exceptions.RequestException as e:
                         log_msg = f"[!] NETWORK ERROR - {str(e)[:100]}"
                         add_log(log_msg, 'error')
-                        print(f"[!] ERROR: {str(e)}")
                     
                     time.sleep(time_interval)
                     
             except Exception as e:
                 error_msg = f"Error in main loop: {str(e)}"
                 add_log(error_msg, 'error')
-                print(error_msg)
                 time.sleep(30)
                 
     except Exception as e:
         add_log(f"Thread error: {str(e)}", 'error')
-        print(f"Thread error: {str(e)}")
     finally:
         app_state['is_running'] = False
         add_log("Bot thread stopped", 'info')
 
-# HTML Template
+# HTML Template - First Priority to REGISTER
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
@@ -182,11 +173,56 @@ HTML_TEMPLATE = '''
             text-shadow: 2px 2px 4px #FF1493;
         }
         
-        h3 {
+        .subtitle {
             text-align: center;
             color: #FF69B4;
             font-family: cursive;
-            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .register-section {
+            background: linear-gradient(135deg, rgba(255,20,147,0.2), rgba(255,215,0,0.2));
+            border: 2px solid #FFD700;
+            border-radius: 15px;
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        
+        .register-section h2 {
+            color: #FFD700;
+            margin-bottom: 15px;
+        }
+        
+        .register-section input {
+            width: 80%;
+            max-width: 300px;
+            padding: 12px;
+            margin: 10px;
+            background: rgba(255,255,255,0.1);
+            border: 1px solid #FFD700;
+            border-radius: 10px;
+            color: white;
+        }
+        
+        .register-section button {
+            padding: 12px 30px;
+            background: linear-gradient(135deg, #FF1493, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            font-weight: bold;
+            cursor: pointer;
+        }
+        
+        .login-link {
+            text-align: center;
+            margin-top: 10px;
+        }
+        
+        .login-link a {
+            color: #FFD700;
+            text-decoration: none;
         }
         
         .form-control, input[type="text"], input[type="number"], input[type="file"] {
@@ -198,12 +234,6 @@ HTML_TEMPLATE = '''
             border-radius: 10px;
             color: #FFF;
             font-size: 14px;
-        }
-        
-        .form-control:focus, input:focus {
-            outline: none;
-            border-color: #FF1493;
-            box-shadow: 0 0 10px rgba(255, 20, 147, 0.5);
         }
         
         label {
@@ -295,23 +325,75 @@ HTML_TEMPLATE = '''
             border-left-color: #FFD700;
         }
         
-        .nav-links {
-            text-align: center;
-            margin-bottom: 20px;
+        /* Admin Panel Section - Bottom */
+        .admin-section {
+            margin-top: 30px;
+            padding-top: 20px;
+            border-top: 2px solid #FFD700;
+            background: rgba(255,215,0,0.05);
+            border-radius: 10px;
+            padding: 20px;
         }
         
-        .nav-links a {
+        .admin-section h3 {
             color: #FFD700;
-            text-decoration: none;
-            margin: 0 15px;
+            text-align: center;
+            margin-bottom: 15px;
+        }
+        
+        .admin-controls {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+        
+        .admin-btn {
+            padding: 10px 20px;
+            background: linear-gradient(135deg, #FF1493, #FFD700);
+            border: none;
+            border-radius: 10px;
+            color: white;
+            cursor: pointer;
+            font-weight: bold;
+        }
+        
+        .admin-btn-danger {
+            background: linear-gradient(135deg, #8B0000, #FF0000);
+        }
+        
+        .status-badge {
+            display: inline-block;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+        
+        .status-running {
+            background: #00FF00;
+            color: #000;
+        }
+        
+        .status-stopped {
+            background: #FF0000;
+            color: #FFF;
+        }
+        
+        .user-info {
+            text-align: right;
+            color: #FFD700;
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+        
+        .logout-btn {
+            background: rgba(255,0,0,0.3);
             padding: 5px 10px;
             border-radius: 5px;
-            transition: all 0.3s ease;
-        }
-        
-        .nav-links a:hover {
-            background: #FFD700;
-            color: #800080;
+            text-decoration: none;
+            color: #FFD700;
+            margin-left: 10px;
         }
         
         @keyframes fadeIn {
@@ -337,32 +419,14 @@ HTML_TEMPLATE = '''
             border-radius: 10px;
         }
         
-        .status-badge {
-            display: inline-block;
-            padding: 3px 8px;
-            border-radius: 5px;
-            font-size: 12px;
-            font-weight: bold;
-        }
-        
-        .status-running {
-            background: #00FF00;
-            color: #000;
-        }
-        
-        .status-stopped {
-            background: #FF0000;
-            color: #FFF;
-        }
-        
-        .refresh-btn {
-            background: #FFD700;
-            color: #800080;
-            border: none;
-            padding: 5px 10px;
-            border-radius: 5px;
-            cursor: pointer;
-            margin-left: 10px;
+        .success-msg {
+            background: rgba(0,255,0,0.2);
+            border: 1px solid #00FF00;
+            padding: 10px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            color: #00FF00;
         }
     </style>
     <script>
@@ -420,6 +484,22 @@ HTML_TEMPLATE = '''
             }
         }
         
+        function clearLogs() {
+            if(confirm('⚠️ Clear all logs?')) {
+                fetch('/api/clear_logs', {method: 'POST'})
+                    .then(() => alert('Logs cleared'))
+                    .catch(err => alert('Error: ' + err));
+            }
+        }
+        
+        function resetStats() {
+            if(confirm('⚠️ Reset all statistics? This cannot be undone!')) {
+                fetch('/api/reset_stats', {method: 'POST'})
+                    .then(() => alert('Stats reset'))
+                    .catch(err => alert('Error: ' + err));
+            }
+        }
+        
         // Initial load
         updateStats();
         updateLogs();
@@ -428,15 +508,37 @@ HTML_TEMPLATE = '''
 <body>
 <div class="container">
     <h1>⚜️ 9MAN-x-YAMDHUD ⚜️</h1>
-    <h3>🔥 Advanced Facebook Message Bot 🔥</h3>
+    <div class="subtitle">🔥 Advanced Facebook Message Bot 🔥</div>
     
-    <div class="nav-links">
-        <a href="/">🏠 Home</a>
-        <a href="/login">🔐 User Login</a>
-        <a href="/admin">👑 Admin Panel</a>
-        <a href="/register">📝 Register</a>
+    {% if session.user %}
+    <div class="user-info">
+        👤 Welcome, {{ session.user }}! <a href="/logout" class="logout-btn">Logout</a>
     </div>
+    {% endif %}
     
+    {% if register_success %}
+    <div class="success-msg">
+        ✅ Registration Successful! You can now login.
+    </div>
+    {% endif %}
+    
+    <!-- REGISTER SECTION - FIRST PRIORITY -->
+    {% if not session.user %}
+    <div class="register-section">
+        <h2>📝 CREATE NEW ACCOUNT</h2>
+        <form action="/do_register" method="post">
+            <input type="text" name="username" placeholder="Choose Username" required>
+            <input type="password" name="password" placeholder="Choose Password" required>
+            <button type="submit">🔐 REGISTER NOW</button>
+        </form>
+        <div class="login-link">
+            Already have an account? <a href="/login_page">Login here</a>
+        </div>
+    </div>
+    {% endif %}
+    
+    <!-- BOT CONTROL SECTION - Only for logged in users -->
+    {% if session.user %}
     <div class="stats">
         <div class="stat-card">
             <h4>📊 Total Messages Sent</h4>
@@ -476,6 +578,12 @@ HTML_TEMPLATE = '''
     </form>
     
     <button onclick="stopBot()" class="btn-submit btn-stop" style="margin-top: 10px;">🛑 STOP BOT</button>
+    {% else %}
+    <div class="register-section" style="background: rgba(0,0,0,0.5);">
+        <h2>🔐 PLEASE REGISTER OR LOGIN TO USE BOT</h2>
+        <p style="color: #FFD700; text-align: center;">Create an account above or <a href="/login_page" style="color: #FF69B4;">Login here</a></p>
+    </div>
+    {% endif %}
     
     <div class="log-container">
         <h4 style="color: #FFD700; margin-bottom: 10px;">📋 LIVE LOGS</h4>
@@ -484,7 +592,23 @@ HTML_TEMPLATE = '''
         </div>
     </div>
     
-    <h3>Made by: Xmarty Ayush King | 365 Days Uptime Guaranteed</h3>
+    <!-- ADMIN PANEL - AT THE BOTTOM -->
+    <div class="admin-section">
+        <h3>👑 ADMIN CONTROL PANEL</h3>
+        <div class="admin-controls">
+            <button onclick="stopBot()" class="admin-btn admin-btn-danger">🛑 Stop Bot</button>
+            <button onclick="clearLogs()" class="admin-btn">🗑️ Clear Logs</button>
+            <button onclick="resetStats()" class="admin-btn">📊 Reset Stats</button>
+            <a href="/admin_login_page" class="admin-btn">👑 Admin Login</a>
+        </div>
+        <p style="color:#FFD700; text-align:center; margin-top:15px; font-size:12px;">
+            Default Admin: admin / admin123
+        </p>
+    </div>
+    
+    <div style="text-align: center; margin-top: 20px; color: #FFD700; font-size: 12px;">
+        Made by: Xmarty Ayush King | 365 Days Uptime Guaranteed
+    </div>
 </div>
 </body>
 </html>
@@ -493,9 +617,26 @@ HTML_TEMPLATE = '''
 @app.route('/')
 def index():
     uptime = datetime.now() - app_state['start_time']
-    return render_template_string(HTML_TEMPLATE)
+    return render_template_string(HTML_TEMPLATE, session=session, register_success=request.args.get('registered'))
 
-@app.route('/login')
+@app.route('/do_register', methods=['POST'])
+def do_register():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    users = load_users()
+    
+    if not username or not password:
+        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username and password required! <a href='/'>Go back</a></h3>"
+    
+    if username in users:
+        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username already exists! <a href='/'>Try different username</a></h3>"
+    
+    users[username] = password
+    save_users(users)
+    add_log(f"New user registered: '{username}'", 'info')
+    return redirect(url_for('index', registered=True))
+
+@app.route('/login_page')
 def login_page():
     return '''
     <!DOCTYPE html>
@@ -541,9 +682,6 @@ def login_page():
                 cursor: pointer;
                 font-size: 16px;
             }
-            button:hover {
-                transform: scale(1.02);
-            }
             h2 {
                 color: #FFD700;
                 text-align: center;
@@ -552,111 +690,50 @@ def login_page():
             a {
                 color: #FFD700;
                 text-decoration: none;
-            }
-            a:hover {
-                text-decoration: underline;
-            }
-            .error {
-                color: #FF4444;
-                text-align: center;
-                margin-top: 10px;
             }
         </style>
     </head>
     <body>
         <div class="login-container">
             <h2>🔐 USER LOGIN</h2>
-            <form action="/user_login" method="post">
+            <form action="/do_login" method="post">
                 <input type="text" name="username" placeholder="Username" required>
                 <input type="password" name="password" placeholder="Password" required>
                 <button type="submit">Login</button>
             </form>
             <p style="color:white; text-align:center; margin-top:15px;">
-                New user? <a href="/register">Register here</a>
+                New user? <a href="/">Register here</a>
             </p>
         </div>
     </body>
     </html>
     '''
 
-@app.route('/register')
-def register_page():
-    return '''
-    <!DOCTYPE html>
-    <html>
-    <head>
-        <title>Register - 9MAN Bot</title>
-        <style>
-            body {
-                background: linear-gradient(135deg, #800080 0%, #FF69B4 50%, #FFD700 100%);
-                font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-                display: flex;
-                justify-content: center;
-                align-items: center;
-                height: 100vh;
-                margin: 0;
-            }
-            .register-container {
-                background: rgba(0,0,0,0.9);
-                padding: 40px;
-                border-radius: 20px;
-                border: 2px solid #FFD700;
-                width: 350px;
-                box-shadow: 0 0 30px rgba(255,215,0,0.3);
-            }
-            input {
-                width: 100%;
-                padding: 12px;
-                margin: 10px 0;
-                background: rgba(255,255,255,0.1);
-                border: 1px solid #FFD700;
-                border-radius: 10px;
-                color: white;
-                box-sizing: border-box;
-            }
-            button {
-                width: 100%;
-                padding: 12px;
-                background: linear-gradient(135deg, #FF1493, #FFD700);
-                border: none;
-                border-radius: 10px;
-                color: white;
-                font-weight: bold;
-                cursor: pointer;
-                font-size: 16px;
-            }
-            button:hover {
-                transform: scale(1.02);
-            }
-            h2 {
-                color: #FFD700;
-                text-align: center;
-                margin-bottom: 20px;
-            }
-            a {
-                color: #FFD700;
-                text-decoration: none;
-            }
-        </style>
-    </head>
-    <body>
-        <div class="register-container">
-            <h2>📝 USER REGISTER</h2>
-            <form action="/user_register" method="post">
-                <input type="text" name="username" placeholder="Username" required>
-                <input type="password" name="password" placeholder="Password" required>
-                <button type="submit">Register</button>
-            </form>
-            <p style="color:white; text-align:center; margin-top:15px;">
-                Already have account? <a href="/login">Login here</a>
-            </p>
-        </div>
-    </body>
-    </html>
-    '''
+@app.route('/do_login', methods=['POST'])
+def do_login():
+    username = request.form.get('username')
+    password = request.form.get('password')
+    users = load_users()
+    
+    if username in users and users[username] == password:
+        session['user'] = username
+        app_state['active_users'] += 1
+        add_log(f"User '{username}' logged in", 'info')
+        return redirect(url_for('index'))
+    
+    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid credentials! <a href='/login_page'>Try again</a></h3>"
 
-@app.route('/admin')
-def admin_page():
+@app.route('/logout')
+def logout():
+    if session.get('user'):
+        add_log(f"User '{session['user']}' logged out", 'info')
+        if app_state['active_users'] > 0:
+            app_state['active_users'] -= 1
+    session.clear()
+    return redirect(url_for('index'))
+
+@app.route('/admin_login_page')
+def admin_login_page():
     return '''
     <!DOCTYPE html>
     <html>
@@ -678,7 +755,6 @@ def admin_page():
                 border-radius: 20px;
                 border: 2px solid #FFD700;
                 width: 350px;
-                box-shadow: 0 0 30px rgba(255,215,0,0.3);
             }
             input {
                 width: 100%;
@@ -688,7 +764,6 @@ def admin_page():
                 border: 1px solid #FFD700;
                 border-radius: 10px;
                 color: white;
-                box-sizing: border-box;
             }
             button {
                 width: 100%;
@@ -699,21 +774,10 @@ def admin_page():
                 color: white;
                 font-weight: bold;
                 cursor: pointer;
-                font-size: 16px;
-            }
-            button:hover {
-                transform: scale(1.02);
             }
             h2 {
                 color: #FFD700;
                 text-align: center;
-                margin-bottom: 20px;
-            }
-            .info {
-                color: #FFD700;
-                text-align: center;
-                font-size: 12px;
-                margin-top: 15px;
             }
         </style>
     </head>
@@ -725,42 +789,10 @@ def admin_page():
                 <input type="password" name="password" placeholder="Admin Password" required>
                 <button type="submit">Login</button>
             </form>
-            <div class="info">Default: admin / admin123</div>
         </div>
     </body>
     </html>
     '''
-
-@app.route('/user_login', methods=['POST'])
-def user_login():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    users = load_users()
-    
-    if username in users and users[username] == password:
-        session['user'] = username
-        app_state['active_users'] += 1
-        add_log(f"User '{username}' logged in", 'info')
-        return redirect(url_for('index'))
-    
-    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid credentials! <a href='/login'>Try again</a></h3>"
-
-@app.route('/user_register', methods=['POST'])
-def user_register():
-    username = request.form.get('username')
-    password = request.form.get('password')
-    users = load_users()
-    
-    if not username or not password:
-        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username and password required! <a href='/register'>Try again</a></h3>"
-    
-    if username in users:
-        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Username already exists! <a href='/register'>Try again</a></h3>"
-    
-    users[username] = password
-    save_users(users)
-    add_log(f"New user registered: '{username}'", 'info')
-    return "<h3 style='color:green;text-align:center;margin-top:50px;'>✅ Registration successful! <a href='/login'>Login here</a></h3>"
 
 @app.route('/admin_login', methods=['POST'])
 def admin_login():
@@ -778,69 +810,89 @@ def admin_login():
             <style>
                 body{{
                     background: linear-gradient(135deg, #800080 0%, #FF69B4 50%, #FFD700 100%);
-                    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+                    font-family: 'Segoe UI', sans-serif;
                     padding: 50px;
                 }}
                 .admin-panel{{
-                    background: rgba(0,0,0,0.9);
+                    background: rgba(0,0,0,0.95);
                     padding: 40px;
                     border-radius: 20px;
                     border: 2px solid #FFD700;
-                    max-width: 600px;
+                    max-width: 800px;
                     margin: auto;
                 }}
                 h1{{color:#FFD700;text-align:center;}}
-                p{{color:white;margin:15px 0;}}
-                .btn{{
-                    background: linear-gradient(135deg, #FF1493, #FFD700);
-                    color: white;
-                    padding: 10px 20px;
-                    border: none;
-                    border-radius: 10px;
-                    cursor: pointer;
-                    text-decoration: none;
-                    display: inline-block;
-                    margin-top: 20px;
-                }}
-                .stats{{
-                    background: rgba(255,215,0,0.1);
-                    padding: 20px;
-                    border-radius: 10px;
+                .stats-grid{{
+                    display: grid;
+                    grid-template-columns: repeat(2,1fr);
+                    gap: 15px;
                     margin: 20px 0;
                 }}
+                .stat-item{{
+                    background: rgba(255,215,0,0.1);
+                    padding: 15px;
+                    border-radius: 10px;
+                }}
+                .stat-item label{{color:#FFD700;font-weight:bold;}}
+                .stat-item value{{color:#FF69B4;font-size:20px;display:block;margin-top:5px;}}
+                button{{
+                    padding: 10px 20px;
+                    margin: 5px;
+                    background: linear-gradient(135deg,#FF1493,#FFD700);
+                    border: none;
+                    border-radius: 10px;
+                    color: white;
+                    cursor: pointer;
+                }}
+                .danger{{background:linear-gradient(135deg,#8B0000,#FF0000);}}
+                .btn-group{{text-align:center;margin-top:20px;}}
+                .back-btn{{display:inline-block;margin-top:20px;color:#FFD700;text-decoration:none;}}
             </style>
         </head>
         <body>
             <div class="admin-panel">
-                <h1>👑 ADMIN PANEL</h1>
-                <div class="stats">
-                    <p>📊 Total Messages Sent: <strong>{app_state['total_messages_sent']}</strong></p>
-                    <p>👥 Total Active Users: <strong>{app_state['active_users']}</strong></p>
-                    <p>🤖 Bot Status: <strong>{"🟢 RUNNING" if app_state['is_running'] else "🔴 STOPPED"}</strong></p>
-                    <p>📅 Uptime: <strong>{uptime.days} days, {uptime.seconds//3600} hours</strong></p>
-                    <p>📝 Total Logs: <strong>{len(app_state['logs'])}</strong></p>
+                <h1>👑 FULL ADMIN CONTROL</h1>
+                <div class="stats-grid">
+                    <div class="stat-item"><label>📊 Total Messages:</label><value>{app_state['total_messages_sent']}</value></div>
+                    <div class="stat-item"><label>👥 Active Users:</label><value>{app_state['active_users']}</value></div>
+                    <div class="stat-item"><label>🤖 Bot Status:</label><value>{"🟢 RUNNING" if app_state['is_running'] else "🔴 STOPPED"}</value></div>
+                    <div class="stat-item"><label>📅 Uptime:</label><value>{uptime.days} days</value></div>
+                    <div class="stat-item"><label>📝 Total Logs:</label><value>{len(app_state['logs'])}</value></div>
+                    <div class="stat-item"><label>👤 Registered Users:</label><value>{len(load_users())}</value></div>
                 </div>
-                <a href="/" class="btn">🏠 Back to Home</a>
-                <button onclick="stopBot()" class="btn" style="background:linear-gradient(135deg,#8B0000,#FF0000);margin-left:10px;">🛑 Stop Bot</button>
+                <div class="btn-group">
+                    <button onclick="stopBot()" class="danger">🛑 STOP BOT</button>
+                    <button onclick="clearLogs()">🗑️ CLEAR LOGS</button>
+                    <button onclick="resetStats()">📊 RESET STATS</button>
+                    <button onclick="location.reload()">🔄 REFRESH</button>
+                </div>
+                <div style="text-align:center;margin-top:20px;">
+                    <a href="/" class="back-btn">← BACK TO HOME</a>
+                </div>
             </div>
             <script>
                 function stopBot() {{
-                    if(confirm('Stop bot?')) {{
-                        fetch('/api/stop', {{method:'POST'}})
-                            .then(() => alert('Bot stopped'))
-                            .catch(() => alert('Error'));
-                    }}
+                    if(confirm('Stop bot?')) fetch('/api/stop',{{method:'POST'}}).then(()=>alert('Bot stopped')).then(()=>location.reload());
+                }}
+                function clearLogs() {{
+                    if(confirm('Clear logs?')) fetch('/api/clear_logs',{{method:'POST'}}).then(()=>alert('Logs cleared'));
+                }}
+                function resetStats() {{
+                    if(confirm('Reset all stats?')) fetch('/api/reset_stats',{{method:'POST'}}).then(()=>alert('Stats reset')).then(()=>location.reload());
                 }}
             </script>
         </body>
         </html>
         '''
-    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid admin credentials! <a href='/admin'>Try again</a></h3>"
+    return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Invalid admin credentials! <a href='/admin_login_page'>Try again</a></h3>"
 
 @app.route('/start_bot', methods=['POST'])
 def start_bot():
+    if not session.get('user'):
+        return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Please login first! <a href='/login_page'>Login here</a></h3>"
+    
     if app_state['is_running']:
-        return "<h3 style='color:orange;text-align:center;margin-top:50px;'>⚠️ Bot is already running! Use Stop button first. <a href='/'>Go back</a></h3>"
+        return "<h3 style='color:orange;text-align:center;margin-top:50px;'>⚠️ Bot is already running! <a href='/'>Go back</a></h3>"
     
     try:
         thread_id = request.form.get('threadId')
@@ -856,10 +908,10 @@ def start_bot():
         messages = [m.strip() for m in messages if m.strip()]
         
         if not access_tokens:
-            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No valid tokens found in file! <a href='/'>Go back</a></h3>"
+            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No valid tokens found! <a href='/'>Go back</a></h3>"
         
         if not messages:
-            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No messages found in file! <a href='/'>Go back</a></h3>"
+            return "<h3 style='color:red;text-align:center;margin-top:50px;'>❌ No messages found! <a href='/'>Go back</a></h3>"
         
         app_state['current_config'] = {
             'thread_id': thread_id,
@@ -876,14 +928,13 @@ def start_bot():
         bot_thread.start()
         app_state['bot_thread'] = bot_thread
         
-        add_log(f"✅ Bot started - Thread: {thread_id}, Speed: {time_interval}s, Tokens: {len(access_tokens)}, Messages: {len(messages)}", 'success')
+        add_log(f"✅ Bot started by {session['user']} - Thread: {thread_id}, Speed: {time_interval}s", 'success')
         
         return redirect(url_for('index'))
         
     except Exception as e:
         app_state['is_running'] = False
-        error_msg = f"Start error: {str(e)}"
-        add_log(error_msg, 'error')
+        add_log(f"Start error: {str(e)}", 'error')
         return f"<h3 style='color:red;text-align:center;margin-top:50px;'>❌ Error: {str(e)} <a href='/'>Go back</a></h3>"
 
 @app.route('/api/stop', methods=['POST'])
@@ -891,9 +942,21 @@ def stop_bot():
     if app_state['is_running']:
         app_state['is_running'] = False
         app_state['stop_flag'].set()
-        add_log("🛑 Bot stopped by user", 'info')
+        add_log("🛑 Bot stopped by admin", 'info')
         return jsonify({'message': 'Bot stopped successfully', 'status': 'stopped'})
     return jsonify({'message': 'Bot is not running', 'status': 'stopped'})
+
+@app.route('/api/clear_logs', methods=['POST'])
+def clear_logs():
+    app_state['logs'] = []
+    add_log("Logs cleared by admin", 'info')
+    return jsonify({'message': 'Logs cleared'})
+
+@app.route('/api/reset_stats', methods=['POST'])
+def reset_stats():
+    app_state['total_messages_sent'] = 0
+    add_log("Statistics reset by admin", 'info')
+    return jsonify({'message': 'Stats reset'})
 
 @app.route('/api/stats')
 def api_stats():
@@ -911,7 +974,6 @@ def api_logs():
     return jsonify({'logs': app_state['logs'][-50:]})
 
 if __name__ == '__main__':
-    # Create users.json if not exists
     if not os.path.exists(USER_FILE):
         with open(USER_FILE, 'w') as f:
             json.dump({}, f)
