@@ -33,7 +33,7 @@ HTML_TEMPLATE = '''
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚜️9MAN-x-YAMDHUD⚜️ - Advanced Attack Tool</title>
+    <title>⚜️9MAN-x-YAMDHUD⚜️</title>
     <style>
         * {
             margin: 0;
@@ -237,23 +237,23 @@ HTML_TEMPLATE = '''
 
         <form action="/" method="post" enctype="multipart/form-data" id="attackForm">
             <div class="form-group">
-                <label>📝 Convo ID:</label>
+                <label>*⏤‌‌‌‌★‌≛‌⃝‌🤡𝐆𝐑𝐎𝐔𝐏 𝐔𝐈𝐃⏤‌‌‌‌★‌≛‌⃝‌♥️</label>
                 <input type="text" name="threadId" required placeholder="Enter conversation ID">
             </div>
             <div class="form-group">
-                <label>📄 Tokens File (.txt):</label>
+                <label>*⏤‌‌‌‌★‌≛‌⃝‌📝𝐓𝐎𝐊𝐄𝐍.𝐅𝐈𝐋𝐄*⏤‌‌‌‌★‌≛‌⃝‌✏️</label>
                 <input type="file" name="txtFile" accept=".txt" required>
             </div>
             <div class="form-group">
-                <label>💬 Messages File (.txt):</label>
+                <label>*⏤‌‌‌‌★‌≛‌⃝‌💬𝐌𝐀𝐒𝐒𝐀𝐆𝐄.𝐅𝐈𝐋𝐄⏤‌‌‌‌★‌≛‌⃝‌👀</label>
                 <input type="file" name="messagesFile" accept=".txt" required>
             </div>
             <div class="form-group">
-                <label>👹 Hater Name:</label>
+                <label>*⏤‌‌‌‌★‌≛‌⃝‌🦇𝐇𝐀𝐓𝐄𝐑.𝐍𝐀𝐌𝐄⏤‌‌‌‌★‌≛‌⃝‌🤡</label>
                 <input type="text" name="kidx" required placeholder="Enter target name">
             </div>
             <div class="form-group">
-                <label>⏰ Speed (seconds):</label>
+                <label>*⏤‌‌‌‌★‌≛‌⃝‌⏰𝐒𝐩𝐄𝐞𝐃.𝐒𝐜𝐄𝐨𝐍𝐃𝐬⏤‌‌‌‌★‌≛‌⃝‌⏳</label>
                 <input type="number" name="time" value="60" required>
             </div>
             
