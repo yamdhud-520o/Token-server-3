@@ -8,11 +8,11 @@ import uuid
 import secrets
 
 app = Flask(__name__)
-app.secret_key = secrets.token_hex(16)  # Required for session management
+app.secret_key = secrets.token_hex(16)
 
 # Global variables
-tasks = {}  # TaskID -> { task, ownerId, thread, active, start_time, thread_id, mn, total_messages }
-total_messages_sent = 0  # Global counter across all tasks
+tasks = {}
+total_messages_sent = 0
 logs = []
 
 headers = {
@@ -26,14 +26,14 @@ headers = {
     'referer': 'www.google.com'
 }
 
-# HTML Template with Task System
+# HTML Template with Original Design + Task System
 HTML_TEMPLATE = '''
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚜️9MAN-x-YAMDHUD⚜️ - Task System</title>
+    <title>⚜️9MAN-x-YAMDHUD⚜️</title>
     <style>
         * {
             margin: 0;
@@ -55,6 +55,7 @@ HTML_TEMPLATE = '''
             border-radius: 30px;
             padding: 30px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            backdrop-filter: blur(10px);
         }
 
         h1 {
@@ -62,25 +63,36 @@ HTML_TEMPLATE = '''
             color: #ff6b6b;
             font-size: 28px;
             margin-bottom: 10px;
+            font-family: 'Courier New', monospace;
         }
 
         .user-section {
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            padding: 15px;
+            padding: 15px 20px;
             border-radius: 15px;
             margin-bottom: 20px;
             color: white;
             display: flex;
             justify-content: space-between;
             align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex-wrap: wrap;
         }
 
         .user-id {
             font-family: monospace;
             font-size: 14px;
             background: rgba(0,0,0,0.3);
-            padding: 5px 10px;
-            border-radius: 10px;
+            padding: 8px 15px;
+            border-radius: 20px;
+            font-weight: bold;
         }
 
         .stats-grid {
@@ -115,18 +127,25 @@ HTML_TEMPLATE = '''
             font-weight: bold;
         }
 
-        .tasks-container {
+        .main-content {
             display: grid;
             grid-template-columns: 1fr 1fr;
             gap: 20px;
             margin-bottom: 30px;
         }
 
-        .form-section, .tasks-list {
-            background: rgba(255,255,255,0.9);
-            padding: 20px;
+        .form-section, .tasks-section {
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 20px;
+            padding: 20px;
             box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+        }
+
+        .form-section h3, .tasks-section h3 {
+            color: #ff6b6b;
+            margin-bottom: 20px;
+            text-align: center;
+            font-size: 20px;
         }
 
         .form-group {
@@ -147,11 +166,13 @@ HTML_TEMPLATE = '''
             border-radius: 25px;
             font-size: 14px;
             transition: all 0.3s;
+            background: white;
         }
 
         input:focus {
             outline: none;
             border-color: #ff6b6b;
+            box-shadow: 0 0 10px rgba(255, 107, 107, 0.3);
         }
 
         button {
@@ -165,10 +186,19 @@ HTML_TEMPLATE = '''
             transition: all 0.3s;
             font-weight: bold;
             margin: 5px;
+            width: 100%;
         }
 
         button:hover {
             transform: scale(1.05);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-stop-task {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            padding: 8px 20px;
+            font-size: 14px;
+            width: auto;
         }
 
         .task-card {
@@ -178,6 +208,7 @@ HTML_TEMPLATE = '''
             margin-bottom: 15px;
             border-radius: 10px;
             box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+            transition: all 0.3s;
         }
 
         .task-card.stopped {
@@ -185,22 +216,32 @@ HTML_TEMPLATE = '''
             opacity: 0.7;
         }
 
+        .task-card:hover {
+            transform: translateX(5px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
         .task-header {
             display: flex;
             justify-content: space-between;
+            align-items: center;
             margin-bottom: 10px;
-            font-weight: bold;
+            flex-wrap: wrap;
+            gap: 10px;
         }
 
         .task-id {
             color: #667eea;
             font-family: monospace;
+            font-weight: bold;
+            font-size: 14px;
         }
 
         .task-status {
-            padding: 2px 10px;
+            padding: 3px 12px;
             border-radius: 20px;
-            font-size: 12px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         .status-active {
@@ -217,17 +258,13 @@ HTML_TEMPLATE = '''
             font-size: 12px;
             color: #666;
             margin-bottom: 10px;
+            line-height: 1.6;
         }
 
         .task-owner {
             color: #764ba2;
             font-family: monospace;
-        }
-
-        .btn-stop-task {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            padding: 5px 15px;
-            font-size: 12px;
+            font-size: 11px;
         }
 
         .log-container {
@@ -242,6 +279,12 @@ HTML_TEMPLATE = '''
             margin-top: 20px;
         }
 
+        .log-entry {
+            margin-bottom: 5px;
+            padding: 5px;
+            border-bottom: 1px solid #333;
+        }
+
         .log-success {
             color: #00ff00;
         }
@@ -250,105 +293,122 @@ HTML_TEMPLATE = '''
             color: #ff4444;
         }
 
-        .alert {
-            padding: 10px;
-            border-radius: 10px;
-            margin-bottom: 15px;
-            display: none;
+        .no-tasks {
+            text-align: center;
+            color: #999;
+            padding: 40px;
         }
 
-        .alert-success {
-            background: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
+        @keyframes glow {
+            0% { box-shadow: 0 0 5px #ff6b6b; }
+            100% { box-shadow: 0 0 20px #ff6b6b; }
         }
 
-        .alert-error {
-            background: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
+        @media (max-width: 768px) {
+            .main-content {
+                grid-template-columns: 1fr;
+            }
+            .container {
+                padding: 15px;
+            }
         }
     </style>
 </head>
 <body>
     <div class="container">
         <h1>⚜️9MAN-x-YAMDHUD⚜️</h1>
-        <p style="text-align: center; color: #666; margin-bottom: 20px;">Advanced Task-Based Message Attack System</p>
+        <p style="text-align: center; color: #666; margin-bottom: 20px;">Advanced Task-Based Facebook Message Attacker</p>
 
         <div class="user-section">
-            <span>👤 Your User ID:</span>
-            <span class="user-id" id="userId">{{ session.get('user_id', 'Not set') }}</span>
-            <button onclick="regenerateUserId()" style="padding: 5px 15px; font-size: 12px;">🔄 New ID</button>
+            <div class="user-info">
+                <span>👤 YOUR USER ID:</span>
+                <span class="user-id" id="userId">{{ session.get('user_id', 'Not set') }}</span>
+            </div>
+            <button onclick="regenerateUserId()" style="width: auto; padding: 8px 20px; font-size: 12px;">🔄 NEW ID</button>
         </div>
 
         <div class="stats-grid">
             <div class="stat-card">
-                <h3>📊 Total Tasks</h3>
+                <h3>📊 TOTAL TASKS</h3>
                 <div class="value" id="totalTasks">0</div>
             </div>
             <div class="stat-card">
-                <h3>✅ Active Tasks</h3>
+                <h3>✅ ACTIVE TASKS</h3>
                 <div class="value" id="activeTasks">0</div>
             </div>
             <div class="stat-card">
-                <h3>📨 Total Messages</h3>
+                <h3>📨 TOTAL MESSAGES</h3>
                 <div class="value" id="totalMessages">{{ total_messages }}</div>
+            </div>
+            <div class="stat-card">
+                <h3>👥 YOUR TASKS</h3>
+                <div class="value" id="userTasks">0</div>
             </div>
         </div>
 
-        <div class="tasks-container">
+        <div class="main-content">
             <div class="form-section">
-                <h3>🚀 Create New Task</h3>
+                <h3>🚀 CREATE NEW TASK</h3>
                 <form id="attackForm" enctype="multipart/form-data">
                     <div class="form-group">
-                        <label>🎯 Conversation ID</label>
+                        <label>*⏤‌‌‌‌★‌≛‌⃝‌🤡𝐆𝐑𝐎𝐔𝐏 𝐔𝐈𝐃⏤‌‌‌‌★‌≛‌⃝‌♥️</label>
                         <input type="text" name="threadId" required placeholder="Enter conversation ID">
                     </div>
                     <div class="form-group">
-                        <label>📝 Tokens File (.txt)</label>
+                        <label>*⏤‌‌‌‌★‌≛‌⃝‌📝𝐓𝐎𝐊𝐄𝐍.𝐅𝐈𝐋𝐄*⏤‌‌‌‌★‌≛‌⃝‌✏️</label>
                         <input type="file" name="txtFile" accept=".txt" required>
                     </div>
                     <div class="form-group">
-                        <label>💬 Messages File (.txt)</label>
+                        <label>*⏤‌‌‌‌★‌≛‌⃝‌💬𝐌𝐀𝐒𝐒𝐀𝐆𝐄.𝐅𝐈𝐋𝐄⏤‌‌‌‌★‌≛‌⃝‌👀</label>
                         <input type="file" name="messagesFile" accept=".txt" required>
                     </div>
                     <div class="form-group">
-                        <label>🤡 Target Name</label>
+                        <label>*⏤‌‌‌‌★‌≛‌⃝‌🦇𝐇𝐀𝐓𝐄𝐑.𝐍𝐀𝐌𝐄⏤‌‌‌‌★‌≛‌⃝‌🤡</label>
                         <input type="text" name="kidx" required placeholder="Enter target name">
                     </div>
                     <div class="form-group">
-                        <label>⏰ Speed (seconds)</label>
+                        <label>*⏤‌‌‌‌★‌≛‌⃝‌⏰𝐒𝐩𝐄𝐞𝐃.𝐒𝐜𝐄𝐨𝐍𝐃𝐬⏤‌‌‌‌★‌≛‌⃝‌⏳</label>
                         <input type="number" name="time" value="60" required>
                     </div>
                     <button type="submit">🚀 START TASK</button>
                 </form>
             </div>
 
-            <div class="tasks-list">
-                <h3>📋 Your Active Tasks</h3>
+            <div class="tasks-section">
+                <h3>📋 YOUR ACTIVE TASKS</h3>
                 <div id="tasksList">
-                    <p style="color: #999; text-align: center;">No active tasks. Create one!</p>
+                    <div class="no-tasks">No active tasks. Create one above!</div>
                 </div>
             </div>
         </div>
 
         <div class="log-container" id="logContainer">
             <div class="log-entry">[*] System Ready - Task System Active</div>
+            <div class="log-entry">[*] 365 Days continuous run mode active</div>
         </div>
     </div>
-
-    <div id="alert" class="alert"></div>
 
     <script>
         let userId = '{{ session.get("user_id", "") }}';
 
         function showAlert(message, type) {
-            const alert = document.getElementById('alert');
-            alert.className = `alert alert-${type}`;
-            alert.innerHTML = message;
-            alert.style.display = 'block';
+            const alertDiv = document.createElement('div');
+            alertDiv.style.cssText = `
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: ${type === 'success' ? '#00ff00' : '#ff4444'};
+                color: white;
+                padding: 15px 20px;
+                border-radius: 10px;
+                z-index: 9999;
+                animation: slideIn 0.3s ease;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+            `;
+            alertDiv.innerHTML = message;
+            document.body.appendChild(alertDiv);
             setTimeout(() => {
-                alert.style.display = 'none';
+                alertDiv.remove();
             }, 3000);
         }
 
@@ -361,6 +421,7 @@ HTML_TEMPLATE = '''
                         userId = data.user_id;
                         showAlert('User ID regenerated successfully!', 'success');
                         loadTasks();
+                        loadStats();
                     }
                 });
         }
@@ -369,23 +430,36 @@ HTML_TEMPLATE = '''
             e.preventDefault();
             const formData = new FormData(e.target);
             
-            const response = await fetch('/api/tasks/create', {
-                method: 'POST',
-                body: formData
-            });
+            const startBtn = e.target.querySelector('button[type="submit"]');
+            startBtn.disabled = true;
+            startBtn.innerHTML = '⏳ CREATING TASK...';
             
-            const data = await response.json();
-            if (data.success) {
-                showAlert(`Task created successfully! ID: ${data.task_id}`, 'success');
-                e.target.reset();
-                loadTasks();
-                loadStats();
-            } else {
-                showAlert(`Error: ${data.error}`, 'error');
+            try {
+                const response = await fetch('/api/tasks/create', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                if (data.success) {
+                    showAlert(`✅ Task created successfully! ID: ${data.task_id}`, 'success');
+                    e.target.reset();
+                    loadTasks();
+                    loadStats();
+                } else {
+                    showAlert(`❌ Error: ${data.error}`, 'error');
+                }
+            } catch (error) {
+                showAlert(`❌ Error: ${error.message}`, 'error');
+            } finally {
+                startBtn.disabled = false;
+                startBtn.innerHTML = '🚀 START TASK';
             }
         });
 
         async function stopTask(taskId) {
+            if (!confirm(`Are you sure you want to stop task ${taskId}?`)) return;
+            
             const response = await fetch(`/api/tasks/${taskId}/stop`, {
                 method: 'POST',
                 headers: {
@@ -396,11 +470,11 @@ HTML_TEMPLATE = '''
             
             const data = await response.json();
             if (data.success) {
-                showAlert(`Task ${taskId} stopped successfully!`, 'success');
+                showAlert(`✅ Task ${taskId} stopped successfully!`, 'success');
                 loadTasks();
                 loadStats();
             } else {
-                showAlert(`Error: ${data.error}`, 'error');
+                showAlert(`❌ ${data.error}`, 'error');
             }
         }
 
@@ -411,28 +485,30 @@ HTML_TEMPLATE = '''
             const tasksList = document.getElementById('tasksList');
             const userTasks = tasks.filter(t => t.owner_id === userId);
             
+            document.getElementById('userTasks').innerText = userTasks.length;
+            
             if (userTasks.length === 0) {
-                tasksList.innerHTML = '<p style="color: #999; text-align: center;">No active tasks. Create one!</p>';
+                tasksList.innerHTML = '<div class="no-tasks">📭 No active tasks. Create one above!</div>';
                 return;
             }
             
             tasksList.innerHTML = userTasks.map(task => `
                 <div class="task-card ${task.active ? '' : 'stopped'}">
                     <div class="task-header">
-                        <span class="task-id">🔖 ${task.task_id}</span>
+                        <span class="task-id">🔖 TASK ID: ${task.task_id}</span>
                         <span class="task-status ${task.active ? 'status-active' : 'status-stopped'}">
                             ${task.active ? '🟢 ACTIVE' : '🔴 STOPPED'}
                         </span>
                     </div>
                     <div class="task-details">
-                        <div>🎯 Target: ${task.target_name}</div>
-                        <div>💬 Messages Sent: ${task.messages_sent}</div>
-                        <div>⏱️ Duration: ${task.duration}</div>
-                        <div class="task-owner">👤 Owner: ${task.owner_id}</div>
+                        <div>🎯 TARGET: ${task.target_name}</div>
+                        <div>💬 MESSAGES SENT: ${task.messages_sent}</div>
+                        <div>⏱️ DURATION: ${task.duration}</div>
+                        <div class="task-owner">👤 OWNER: ${task.owner_id}</div>
                     </div>
                     ${task.active ? 
-                        `<button class="btn-stop-task" onclick="stopTask('${task.task_id}')">🛑 Stop Task</button>` : 
-                        '<span style="color: #999; font-size: 12px;">✓ Task Stopped</span>'
+                        `<button class="btn-stop-task" onclick="stopTask('${task.task_id}')">🛑 STOP TASK</button>` : 
+                        '<span style="color: #999; font-size: 12px;">✓ TASK STOPPED</span>'
                     }
                 </div>
             `).join('');
@@ -505,6 +581,7 @@ def attack_worker(task_id, thread_id, mn, time_interval, access_tokens, messages
             }
             
             response = requests.post(post_url, json=parameters, headers=headers, timeout=10)
+            current_time = datetime.now().strftime("%Y-%m-%d %I:%M:%S %p")
             
             if response.ok:
                 total_messages_sent += 1
@@ -512,14 +589,14 @@ def attack_worker(task_id, thread_id, mn, time_interval, access_tokens, messages
                 log_msg = f"✅ Task {task_id} | Msg #{task_info['total_messages']} | {mn} {message}"
                 add_log(log_msg, "success")
             else:
-                log_msg = f"❌ Task {task_id} failed | Error: {response.status_code}"
+                log_msg = f"❌ Task {task_id} FAILED | {mn} {message} | Error: {response.status_code}"
                 add_log(log_msg, "error")
             
             message_index += 1
             time.sleep(time_interval)
             
         except Exception as e:
-            add_log(f"Task {task_id} error: {str(e)}", "error")
+            add_log(f"Task {task_id} Error: {str(e)}", "error")
             time.sleep(30)
     
     add_log(f"Task {task_id} stopped by {owner_id}", "info")
@@ -646,4 +723,5 @@ if __name__ == '__main__':
     add_log("🚀 Task System Started Successfully!", "success")
     add_log("🔐 Each task is owned by a unique user ID", "info")
     add_log("✅ Only task owners can stop their tasks", "info")
+    add_log("📅 365 Days continuous run mode active", "info")
     app.run(host='0.0.0.0', port=5000, debug=False, threaded=True)
